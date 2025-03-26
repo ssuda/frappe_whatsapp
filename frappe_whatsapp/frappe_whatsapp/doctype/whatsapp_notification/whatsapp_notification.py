@@ -40,6 +40,10 @@ class WhatsAppNotification(Document):
             "WhatsApp Templates", self.template,
             fieldname='actual_name'
         )
+        template_header_type = frappe.db.get_value(
+            "WhatsApp Templates", self.template,
+            fieldname='header_type'
+        )
         if language_code:
             for contact in self._contact_list:
                 data = {
@@ -54,15 +58,18 @@ class WhatsAppNotification(Document):
                         "components": []
                     }
                 }
-                self.content_type = template.get("header_type", "text").lower()
+                self.content_type = (template_header_type or "text").lower()
                 self.notify(data)
         # return _globals.frappe.flags
 
     def send_template_message(self, doc: Document):
         """Specific to Document Event triggered Server Scripts."""
+        print('calling send_template_message1')
+
         if self.disabled:
             return
 
+        print('calling send_template_message2', self.template)
         doc_data = doc.as_dict()
         if self.condition:
             # check if condition satisfies
@@ -77,12 +84,13 @@ class WhatsAppNotification(Document):
         )
 
         if template:
+            print('template', self.template)
             data = {
                 "messaging_product": "whatsapp",
-                "to": self.format_number(doc_data[self.field_name]),
+                "to": self.format_number(doc_data.get(self.field_name, self.fieldname)),
                 "type": "template",
                 "template": {
-                    "name": template.actual_name,
+                    "name": template.template_name,
                     "language": {
                         "code": template.language_code
                     },
@@ -106,6 +114,9 @@ class WhatsAppNotification(Document):
                     "type": "body",
                     "parameters": parameters
                 }]
+
+            if self.code:
+                data['template']['components'] = json.loads(self.code) if isinstance(self.code, str) else self.code
 
             if self.attach_document_print:
                 # frappe.db.begin()
@@ -188,6 +199,8 @@ class WhatsAppNotification(Document):
             "authorization": f"Bearer {token}",
             "content-type": "application/json"
         }
+
+        print("headers", headers, f"{settings.url}/{settings.version}/{settings.phone_id}/messages", data)
         try:
             success = False
             response = make_post_request(

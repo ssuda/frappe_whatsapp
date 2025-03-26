@@ -41,8 +41,7 @@
    "fieldtype": "Code",
    "in_list_view": 1,
    "label": "Template",
-   "options": "HTML",
-   "reqd": 1
+   "options": "HTML"
   },
   {
    "fieldname": "language",
@@ -150,7 +149,7 @@
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-08-19 12:22:17.367586",
+ "modified": "2025-02-06 11:30:13.461745",
  "modified_by": "Administrator",
  "module": "Frappe Whatsapp",
  "name": "WhatsApp Templates",

@@ -23,7 +23,7 @@ class WhatsAppTemplates(Document):
             self.get_session_id()
             self.get_media_id()
 
-        if not self.is_new():
+        if not self.is_new() and self.sample:
             self.update_template()
 
 
@@ -75,6 +75,9 @@ class WhatsAppTemplates(Document):
 
 
     def after_insert(self):
+        if not self.sample:
+            return
+        
         if self.template_name:
             self.actual_name = self.template_name.lower().replace(" ", "_")
 
@@ -164,6 +167,9 @@ class WhatsAppTemplates(Document):
         }
 
     def on_trash(self):
+        if not self.sample:
+            return
+        
         self.get_settings()
         url = f"{self._url}/{self._version}/{self._business_id}/message_templates?name={self.actual_name}"
         try:
